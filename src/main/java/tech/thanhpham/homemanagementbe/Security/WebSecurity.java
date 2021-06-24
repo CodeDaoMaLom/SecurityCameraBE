@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-    private final JwtTokenFilter jwtTokenFilter;
 
     public static String[] roleMember = {"Member", "Admin", "Owner"};
     public static String[] roleAdmin = {"Admin", "Owner"};
@@ -33,7 +32,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable().cors();
 
         http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/login").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET,"/hello").authenticated();
+        http.authorizeRequests().antMatchers(HttpMethod.GET,"/hello").permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(
                 (httpServletRequest, httpServletResponse, e)
@@ -41,6 +40,5 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
