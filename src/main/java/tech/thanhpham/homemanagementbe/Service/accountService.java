@@ -12,11 +12,11 @@ import java.util.UUID;
 public class accountService {
     private final accountRepository accountRepository;
 
-    public Account findByUsername(String Username){
+    public Account findByUsername(String Username) {
         return accountRepository.findByUsername(Username).get();
     }
 
-    public Account findById(UUID uuid){
+    public Account findById(UUID uuid) {
         return accountRepository.findById(uuid).get();
     }
 }

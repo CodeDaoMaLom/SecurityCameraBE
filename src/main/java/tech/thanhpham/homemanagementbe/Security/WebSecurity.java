@@ -1,6 +1,7 @@
 package tech.thanhpham.homemanagementbe.Security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,8 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-    private final JwtTokenFilter jwtTokenFilter;
 
+    @Value("${tech.thanhpham.secret-key}")
+    public static String secretKey;
     public static String[] roleMember = {"Member", "Admin", "Owner"};
     public static String[] roleAdmin = {"Admin", "Owner"};
 
@@ -32,8 +33,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().cors();
 
-        http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/login").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET,"/hello").authenticated();
+        http.authorizeRequests().antMatchers(HttpMethod.POST,"/account/*").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.GET,"/passcode/get").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST,"/passcode/set").permitAll();
+
+
 
         http.exceptionHandling().authenticationEntryPoint(
                 (httpServletRequest, httpServletResponse, e)
@@ -41,6 +45,5 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 
-        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
