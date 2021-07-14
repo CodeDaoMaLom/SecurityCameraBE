@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.thanhpham.homemanagementbe.DTO.imageVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyResponse;
 import tech.thanhpham.homemanagementbe.Service.imageVerifyService;
@@ -18,8 +19,8 @@ public class imageVerifyController {
 
     @PostMapping("")
     public ResponseEntity<?> imageVerify(@RequestBody imageVerifyRequest imageVerifyRequest) {
-        imageVerifyResponse imageVerifyResponse = imageVerifyService.imageVerify(imageVerifyRequest);
-        return ResponseEntity.ok(imageVerifyResponse);
+        imageVerifyDTO imageVerifyDTO = imageVerifyService.imageVerify(imageVerifyRequest);
+        return ResponseEntity.ok(imageVerifyDTO);
     }
 
 }

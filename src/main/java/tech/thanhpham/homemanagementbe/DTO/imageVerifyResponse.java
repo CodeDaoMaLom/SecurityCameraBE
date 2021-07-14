@@ -32,7 +32,7 @@ public class imageVerifyResponse {
         this.probability = probability;
     }
 
-    public int probabilityToInt(){
-        return Integer.valueOf(this.getProbability());
+    public int getProbabilityInt(){
+        return  (int) (Float.parseFloat(this.getProbability()) * 100);
     }
 }
