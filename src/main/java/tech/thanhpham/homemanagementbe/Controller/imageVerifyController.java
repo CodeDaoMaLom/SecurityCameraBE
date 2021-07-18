@@ -1,17 +1,12 @@
 package tech.thanhpham.homemanagementbe.Controller;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
-import tech.thanhpham.homemanagementbe.Entity.ImageVerify;
 import tech.thanhpham.homemanagementbe.Service.imageVerifyService;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
