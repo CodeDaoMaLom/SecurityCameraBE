@@ -1,6 +1,7 @@
 package tech.thanhpham.homemanagementbe.Entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Table(name = "images_verify")
 @Getter
 @Setter
+@NoArgsConstructor
 public class ImageVerify {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
