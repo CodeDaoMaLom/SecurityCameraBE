@@ -36,7 +36,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(HttpMethod.POST,"/account/*").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET,"/passcode/get").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.POST,"/passcode/set").permitAll();
-
+        http.authorizeRequests().antMatchers("/image-verify/*").permitAll();
 
 
         http.exceptionHandling().authenticationEntryPoint(
