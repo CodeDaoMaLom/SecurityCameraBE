@@ -31,9 +31,9 @@ public class imageVerifyController {
         return imageVerifyService.getImageVerifyDTOList();
     }
 
-    @PostMapping("/get-images")
-    public ResponseEntity<byte[]> getImage(@RequestBody imageVerifyDTO imageVerifyDTO) {
-        return imageVerifyService.getImage(imageVerifyDTO.getPath());
+    @GetMapping("/{imagePath}")
+    public ResponseEntity<byte[]> getImage(@PathVariable("imagePath") String imagePath) {
+        return imageVerifyService.getImage(imagePath);
     }
 
 

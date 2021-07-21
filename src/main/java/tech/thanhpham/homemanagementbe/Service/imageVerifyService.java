@@ -46,9 +46,6 @@ public class imageVerifyService {
     @Autowired
     private imageSetupRepository imageSetupRepository;
 
-    private static String errorPath = "/verifies/error-by-date/";
-
-    private static String successPath = "/verifies/success-by-date/";
 
     public imageVerifyDTO imageVerify(imageVerifyRequest imageVerifyRequest) {
         imageVerifyDTO imageVerifyDTO = new imageVerifyDTO();
@@ -67,8 +64,7 @@ public class imageVerifyService {
 
     public imageVerifyDTO saveImageToFolder(imageVerifyResponse imageVerifyResponse, String image) {
         DateTimeFormatter dtfPath = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
-        String relativePath = (imageVerifyResponse.getProbabilityInt() >= 80 ? successPath : errorPath) + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "/";
-        String absolutePath = imagePath + relativePath;
+        String absolutePath = imagePath + "/verifies/";
         String personName = imageVerifyResponse.getPerson().length() > 0 ? imageVerifyResponse.getPerson().trim().replace(" ", "_") : "";
 
         try {
@@ -87,7 +83,7 @@ public class imageVerifyService {
             e.printStackTrace();
         }
 
-        ImageVerify imageVerify = new ImageVerify(relativePath + fileName, LocalDateTime.now(), imageVerifyResponse.getPerson(), imageVerifyResponse.getProbabilityInt(), imageVerifyResponse.getProbabilityInt() >= 80 ? imageVerifyEnum.SUCCESS.name() : imageVerifyEnum.FAIL.name());
+        ImageVerify imageVerify = new ImageVerify(fileName, LocalDateTime.now(), imageVerifyResponse.getPerson(), imageVerifyResponse.getProbabilityInt(), imageVerifyResponse.getProbabilityInt() >= 80 ? imageVerifyEnum.SUCCESS.name() : imageVerifyEnum.FAIL.name());
         imageVerifyDTO imageVerifyDTO = new imageVerifyDTO(imageVerify);
         imageVerifyRepository.save(imageVerify);
 
@@ -138,14 +134,14 @@ public class imageVerifyService {
 
     public List<imageVerifyDTO> getImageVerifyDTOList() {
         List<imageVerifyDTO> imageVerifyDTOList = new ArrayList<>();
-        imageVerifyRepository.findAll().forEach(imageVerify -> imageVerifyDTOList.add(new imageVerifyDTO(imageVerify)));
+        imageVerifyRepository.findAllByOrderByTimeVerifyDesc().forEach(imageVerify -> imageVerifyDTOList.add(new imageVerifyDTO(imageVerify)));
         return imageVerifyDTOList;
     }
 
     public ResponseEntity<byte[]> getImage(String filename) {
         byte[] image = new byte[0];
         try {
-            image = FileUtils.readFileToByteArray(new File(imagePath + filename));
+            image = FileUtils.readFileToByteArray(new File(imagePath + "/verifies/" + filename));
         } catch (IOException e) {
             e.printStackTrace();
         }
