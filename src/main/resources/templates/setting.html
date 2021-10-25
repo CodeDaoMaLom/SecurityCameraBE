@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE">Settings - Smart Security Camera</title>
+    <object th:include="layout :: head" th:remove="tag"/>
+    <script>
+        function addEmail() {
+            var x = document.getElementById("addEmail");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+<nav th:replace="layout :: header"></nav>
+
+<link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
+      integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" rel="stylesheet"/>
+
+<div class="container">
+    <nav class="row justify-content-center wow fadeIn"
+         data-wow-delay="0.2s">
+        <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <div class="list-group-item justify-content-center"
+                 style="padding-left: 50px; padding-right: 50px; padding-bottom: 20px">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <strong class="mb-2">AI Mode</strong>
+                        <span class="badge progress-bar-success" th:if="${settings.get('ai_mode')}">Enabled</span>
+                        <a href="/settings/ai_mode" style="color: white" th:if="${settings.get('ai_mode')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Disable
+                            </button>
+                        </a>
+                        <span class="badge progress-bar-danger" th:unless="${settings.get('ai_mode')}">Disable</span>
+                        <a href="/settings/ai_mode" style="color: white" th:unless="${settings.get('ai_mode')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Enable
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="list-group-item justify-content-center"
+                 style="padding-left: 50px; padding-right: 50px; padding-bottom: 20px">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <strong class="mb-2">Video Recorder</strong>
+                        <span class="badge progress-bar-success" th:if="${settings.get('video_recorder')}">Enabled</span>
+                        <a href="/settings/video_recorder" style="color: white" th:if="${settings.get('video_recorder')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Disable
+                            </button>
+                        </a>
+                        <span class="badge progress-bar-danger"
+                              th:unless="${settings.get('video_recorder')}">Disable</span>
+                        <a href="/settings/video_recorder" style="color: white"
+                           th:unless="${settings.get('video_recorder')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Enable
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="list-group-item justify-content-center"
+                 style="padding-left: 50px; padding-right: 50px; padding-bottom: 20px">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <strong class="mb-2">Email Notifications</strong>
+                        <span class="badge progress-bar-success" th:if="${settings.get('email_warning')}">Enabled</span>
+                        <a href="/settings/email_warning" style="color: white" th:if="${settings.get('email_warning')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Disable
+                            </button>
+                        </a>
+                        <button class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#add-mail"
+                                style="margin-right: 20px" th:if="${settings.get('email_warning')}">
+                            Add Email
+                        </button>
+                        <span class="badge progress-bar-danger"
+                              th:unless="${settings.get('email_warning')}">Disable</span>
+                        <a href="/settings/email_warning" style="color: white"
+                           th:unless="${settings.get('email_warning')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Enable
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="row" th:if="${settings.get('email_warning')}">
+                    <div class="modal fade" role="dialog" tabindex="-1" id="add-mail">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3 class="modal-title">Add New Email</h3>
+                                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="get" action="/settings/add">
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label class="col-form-label"
+                                                   for="new-email">Enter Mail:</label>
+                                            <input class="form-control" id="mail" name="mail" type="email">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-primary" type="submit">Save</button>
+                                        <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                                            Close
+                                        </button>
+
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-bordered table-hover" th:if="${settings.get('email_warning')}">
+                    <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Mail</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="mail, iter : ${maillists}">
+                        <td th:text="${iter.count}"></td>
+                        <td th:text="${mail.getEmail()}"></td>
+                        <td><a data-toggle="modal" th:data-target="${'#' + mail.getId()}"><span
+                                class="glyphicon glyphicon-edit"></span></a></td>
+                        <div class="modal fade" role="dialog" tabindex="-1" th:id="${mail.getId()}">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Change Email</h5>
+                                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form method="get" th:action="${'settings/' + mail.getId() + '/edit'}">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label class="col-form-label"
+                                                       for="old-mail">Old Mail:</label>
+                                                <input class="form-control" contenteditable="false"
+                                                       id="old-mail" th:value="${mail.getEmail()}" type="email">
+                                                <label class="col-form-label"
+                                                       for="new-email">New Mail:</label>
+                                                <input class="form-control" id="new-email" name="new-email"
+                                                       type="email">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-primary" type="submit">Save changes</button>
+                                            <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                                                Close
+                                            </button>
+
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <td><a th:href="${'/settings/' + mail.getId() + '/delete'}"><span
+                                class="glyphicon glyphicon-trash"></span></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+
+</nav>
+</div>
+
+</div>
+</div>
+
+<footer th:replace="layout :: footer"></footer>
+
+</div>
+
+</body>
+</html>

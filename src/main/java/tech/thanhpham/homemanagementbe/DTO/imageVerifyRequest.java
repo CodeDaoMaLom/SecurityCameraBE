@@ -16,6 +16,14 @@ public class imageVerifyRequest {
     @JsonProperty("data")
     private String data;
 
+    public imageVerifyRequest(String name, String data) {
+        this.name = name;
+        this.data = data;
+    }
+
+    public imageVerifyRequest() {
+    }
+
     @JsonProperty("name")
     public String getName() {
         return name;

@@ -1,6 +1,7 @@
 package tech.thanhpham.homemanagementbe.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Encoder;
+import tech.thanhpham.homemanagementbe.DTO.formDataVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyResponse;
@@ -17,9 +21,13 @@ import tech.thanhpham.homemanagementbe.Enum.imageVerifyEnum;
 import tech.thanhpham.homemanagementbe.Repository.imageSetupRepository;
 import tech.thanhpham.homemanagementbe.Repository.imageVerifyRepository;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -28,6 +36,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class imageVerifyService {
@@ -146,5 +155,36 @@ public class imageVerifyService {
             e.printStackTrace();
         }
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image);
+    }
+
+    public  static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
+        File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+fileName);
+        multipart.transferTo(convFile);
+        return convFile;
+    }
+
+    public imageVerifyRequest base64String(formDataVerifyDTO formDataVerifyDTO) throws IOException {
+        BASE64Encoder base64Encoder = new BASE64Encoder();
+        File imagePath = multipartToFile(formDataVerifyDTO.getImage(), formDataVerifyDTO.getName());
+        try {
+            BufferedImage bufferedImage = ImageIO.read(imagePath);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpg", byteArrayOutputStream);
+           String base64String = base64Encoder.encode(byteArrayOutputStream.toByteArray());
+           imageVerifyRequest imageVerifyRequest = new imageVerifyRequest(formDataVerifyDTO.getName(), base64String);
+           return  imageVerifyRequest;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new imageVerifyRequest();
+        }
+    }
+
+    public imageVerifyDTO verifyFromMultiPath(formDataVerifyDTO formDataVerifyDTO) throws IOException {
+
+        return imageVerify(base64String(formDataVerifyDTO));
+    }
+    public ResponseEntity<String> setupFromMultiPath(formDataVerifyDTO formDataVerifyDTO) throws IOException {
+
+        return imageSetup(base64String(formDataVerifyDTO));
     }
 }

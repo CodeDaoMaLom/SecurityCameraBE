@@ -1,4 +1,4 @@
-package tech.thanhpham.homemanagementbe.Controller;
+package tech.thanhpham.homemanagementbe.RestController;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import tech.thanhpham.homemanagementbe.Service.accountService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("account")
+@RequestMapping("api/account")
 public class accountController {
 
     private final AuthenticationManager authenticationManager;

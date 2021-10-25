@@ -19,6 +19,7 @@ public class userDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String Username) throws UsernameNotFoundException {
+        Username = Username.toLowerCase();
         Account account = accountService.findByUsername(Username);
         if (account == null) {
             System.out.println("User not found!" + Username);

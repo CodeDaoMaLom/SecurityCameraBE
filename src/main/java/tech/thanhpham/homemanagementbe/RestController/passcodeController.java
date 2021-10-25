@@ -1,4 +1,4 @@
-package tech.thanhpham.homemanagementbe.Controller;
+package tech.thanhpham.homemanagementbe.RestController;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +8,7 @@ import tech.thanhpham.homemanagementbe.Service.passcodeService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("passcode")
+@RequestMapping("api/passcode")
 public class passcodeController {
 
     private final passcodeService passcodeService;
