@@ -1,20 +1,19 @@
 package tech.thanhpham.homemanagementbe.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Encoder;
-import tech.thanhpham.homemanagementbe.DTO.formDataVerifyDTO;
-import tech.thanhpham.homemanagementbe.DTO.imageVerifyDTO;
-import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
-import tech.thanhpham.homemanagementbe.DTO.imageVerifyResponse;
+import tech.thanhpham.homemanagementbe.DTO.*;
 import tech.thanhpham.homemanagementbe.Entity.ImageSetup;
 import tech.thanhpham.homemanagementbe.Entity.ImageVerify;
 import tech.thanhpham.homemanagementbe.Enum.imageVerifyEnum;
@@ -22,21 +21,17 @@ import tech.thanhpham.homemanagementbe.Repository.imageSetupRepository;
 import tech.thanhpham.homemanagementbe.Repository.imageVerifyRepository;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-import javax.imageio.stream.ImageOutputStream;
+import javax.mail.MessagingException;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 public class imageVerifyService {
@@ -55,6 +50,34 @@ public class imageVerifyService {
     @Autowired
     private imageSetupRepository imageSetupRepository;
 
+    @Autowired
+    private  VideoStreamingService videoStreamingService;
+
+
+    public static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
+        File convFile = new File(System.getProperty("java.io.tmpdir") + "/" + fileName);
+        multipart.transferTo(convFile);
+        return convFile;
+    }
+
+    @Async
+    public void imageVerifyAsync(imageVerifyRequest imageVerifyRequest) {
+        imageVerifyResponse imageVerifyResponse = new imageVerifyResponse();
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            String result = restTemplate.postForObject(aiUrl + "/verify-face", imageVerifyRequest, String.class);
+            imageVerifyResponse = objectMapper.readValue(result, imageVerifyResponse.class);
+            System.out.println(imageVerifyResponse.getProbabilityInt());
+            if (imageVerifyResponse.getProbabilityInt() > 70) {
+                this.saveImageToFolder(imageVerifyResponse, imageVerifyRequest.getData());
+            } else {
+                videoStreamingService.VideoUploader(imageVerifyRequest.getName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public imageVerifyDTO imageVerify(imageVerifyRequest imageVerifyRequest) {
         imageVerifyDTO imageVerifyDTO = new imageVerifyDTO();
@@ -157,12 +180,6 @@ public class imageVerifyService {
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image);
     }
 
-    public  static File multipartToFile(MultipartFile multipart, String fileName) throws IllegalStateException, IOException {
-        File convFile = new File(System.getProperty("java.io.tmpdir")+"/"+fileName);
-        multipart.transferTo(convFile);
-        return convFile;
-    }
-
     public imageVerifyRequest base64String(formDataVerifyDTO formDataVerifyDTO) throws IOException {
         BASE64Encoder base64Encoder = new BASE64Encoder();
         File imagePath = multipartToFile(formDataVerifyDTO.getImage(), formDataVerifyDTO.getName());
@@ -170,9 +187,9 @@ public class imageVerifyService {
             BufferedImage bufferedImage = ImageIO.read(imagePath);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage, "jpg", byteArrayOutputStream);
-           String base64String = base64Encoder.encode(byteArrayOutputStream.toByteArray());
-           imageVerifyRequest imageVerifyRequest = new imageVerifyRequest(formDataVerifyDTO.getName(), base64String);
-           return  imageVerifyRequest;
+            String base64String = base64Encoder.encode(byteArrayOutputStream.toByteArray());
+            imageVerifyRequest imageVerifyRequest = new imageVerifyRequest(formDataVerifyDTO.getName(), base64String);
+            return imageVerifyRequest;
         } catch (IOException e) {
             e.printStackTrace();
             return new imageVerifyRequest();
@@ -186,5 +203,27 @@ public class imageVerifyService {
     public ResponseEntity<String> setupFromMultiPath(formDataVerifyDTO formDataVerifyDTO) throws IOException {
 
         return imageSetup(base64String(formDataVerifyDTO));
+    }
+
+    public List<FacialSetupDTO> getFacialSetupDTOList(){
+        List<FacialSetupDTO> facialSetupDTOList = new ArrayList<>();
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<List<FacialSetupDTO>> response = restTemplate.exchange(new URI(aiUrl + "/get-trained-faces"), HttpMethod.GET, null, new ParameterizedTypeReference<List<FacialSetupDTO>>() {});
+            facialSetupDTOList = response.getBody();
+        } catch (Exception e){
+            System.out.println("Error: " + e);
+        }
+        return facialSetupDTOList;
+    }
+
+    public void deleteFacialSetup(String param){
+        System.out.println(param);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.getForEntity(new URI(aiUrl + "/delete-trained-faces?ids=" + param), null);
+        } catch (Exception e){
+            System.out.println("Error: " + e);
+        }
     }
 }

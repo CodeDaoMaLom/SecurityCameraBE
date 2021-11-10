@@ -47,6 +47,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/").hasAnyAuthority(roleMember);
         http.authorizeRequests().antMatchers("/videos/**").hasAnyAuthority(roleMember);
         http.authorizeRequests().antMatchers("/settings/**").hasAnyAuthority(roleMember);
+        http.authorizeRequests().antMatchers("/facial-setup/**").hasAnyAuthority(roleMember);
 
         http.authorizeRequests().and().exceptionHandling().accessDeniedPage("/login");
 

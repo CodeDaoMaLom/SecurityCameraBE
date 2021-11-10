@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.thanhpham.homemanagementbe.DTO.FacialSetupDTO;
 import tech.thanhpham.homemanagementbe.DTO.formDataVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyDTO;
 import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
+import tech.thanhpham.homemanagementbe.Service.VideoStreamingService;
 import tech.thanhpham.homemanagementbe.Service.imageVerifyService;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RestController
@@ -22,6 +26,12 @@ public class imageVerifyController {
     public ResponseEntity<?> imageVerify(@RequestBody imageVerifyRequest imageVerifyRequest) {
         imageVerifyDTO imageVerifyDTO = imageVerifyService.imageVerify(imageVerifyRequest);
         return ResponseEntity.ok(imageVerifyDTO);
+    }
+
+    @PostMapping("async-verify")
+    public ResponseEntity<?> imageVerifyAsync(@RequestBody imageVerifyRequest imageVerifyRequest){
+        imageVerifyService.imageVerifyAsync(imageVerifyRequest);
+        return ResponseEntity.ok("Ok");
     }
 
     @PostMapping("setup")

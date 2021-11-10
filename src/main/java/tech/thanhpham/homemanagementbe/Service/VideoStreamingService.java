@@ -51,7 +51,6 @@ public class VideoStreamingService {
 
     }
 
-    @Async
     public void VideoUploader(String videoDTO) throws MessagingException, UnsupportedEncodingException {
         if (settingsService.getVideoRecorder()) {
             LocalDate date = LocalDate.now();
@@ -60,7 +59,7 @@ public class VideoStreamingService {
                 Video video = new Video(videoDTO, LocalDateTime.now(), true);
                 videoRepository.save(video);
                 if (settingsService.getMailNotification()) {
-                    mailWarningService.sendAllMail("http://localhost:8000/video/" + videoDTO);
+                    mailWarningService.sendAllMail("http://localhost:8000/video/" + date + "/" + videoDTO);
                 }
             }
         }

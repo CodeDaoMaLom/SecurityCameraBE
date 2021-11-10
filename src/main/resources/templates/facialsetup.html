@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE">Facial Setup Manage - Smart Security Camera</title>
+    <object th:include="layout :: head" th:remove="tag"/>
+    <style>
+        #fade {
+            display: none;
+            position: fixed;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.8;
+            opacity: .80;
+            filter: alpha(opacity=80);
+        }
+
+        #light {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            max-width: 720px;
+            max-height: 480px;
+            margin-left: -300px;
+            margin-top: -180px;
+            border: 2px solid #FFF;
+            background: #FFF;
+            z-index: 1002;
+            overflow: visible;
+        }
+
+        #boxclose {
+            float: right;
+            cursor: pointer;
+            color: #fff;
+            border: 1px solid #AEAEAE;
+            border-radius: 3px;
+            background: #222222;
+            font-size: 31px;
+            font-weight: bold;
+            display: inline-block;
+            line-height: 0px;
+            padding: 11px 3px;
+            position: absolute;
+            right: 2px;
+            top: 2px;
+            z-index: 1002;
+            opacity: 0.9;
+        }
+
+        .boxclose:before {
+            content: "×";
+        }
+
+        #fade:hover ~ #boxclose {
+            display: none;
+        }
+
+        .test:hover ~ .test2 {
+            display: none;
+        }
+    </style>
+
+
+</head>
+<body>
+<nav th:replace="layout :: header"></nav>
+
+
+
+<div class="container main-content list">
+    <br/>
+    <div class="row">
+        <form action="#" class="form-inline pull-right"
+              method="GET" >
+            <div class="form-group">
+                <input class="form-control" name="s" placeholder="Type person name..."
+                       type="text"/>
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </div>
+    <th:block th:if="${#lists.isEmpty(faces.pageList)}">
+        <h3>No Video</h3>
+    </th:block>
+
+    <th:block th:unless="${#lists.isEmpty(faces.pageList)}">
+        <nav class="row justify-content-center wow fadeIn"
+             data-wow-delay="0.2s">
+            <div class="row">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>View</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="face, iterStat : ${faces.pageList}">
+                        <td th:text="${iterStat.count + (currentIndex - 1) * 10}"></td>
+                        <td th:text="${face.name}"></td>
+                        <td><a href="#"><span
+                                class="glyphicon glyphicon-play-circle"></span></a></td>
+                        <td><a th:href="${'/facial-setup/delete?ids='+ face.data }"><span
+                                class="glyphicon glyphicon-trash"></span></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ul class="pagination center">
+                <li
+                        th:class="${currentIndex == 1}? 'page-item disabled' : 'page-item'">
+                    <a class="page-link" th:href="@{/videos/page/1}">First</a>
+                </li>
+                <li
+                        th:class="${currentIndex == 1}? 'page-item disabled': 'page-item' ">
+                    <a aria-label="Previous" class="page-link"
+                       th:href="@{|${baseUrl}${currentIndex - 1}|}"
+                       title='Go to previous page'><span aria-hidden="true">«</span>
+                        <span class="sr-only">Previous</span></a>
+                </li>
+                <li th:class="${item == currentIndex ? 'page-item active' :'page-item' }"
+                    th:each="item : ${#numbers.sequence(beginIndex,endIndex)}">
+                    <a class="page-link" th:href="@{|${baseUrl}${item}|}"> <span
+                            th:text='${item}'>1</span>
+                    </a>
+                </li>
+                <li
+                        th:class="${currentIndex == totalPageCount}? 'page-item disabled': 'page-item'">
+                    <a aria-label="Next" class="page-link"
+                       th:href="@{|${baseUrl}${currentIndex + 1}|}" title='Go to next page'><span
+                            aria-hidden="true">»</span> <span class="sr-only">Next</span></a>
+                </li>
+                <li
+                        th:class="${currentIndex == totalPageCount}? 'page-item disabled':'page-item'">
+                    <a class="page-link" th:href="@{|${baseUrl}${totalPageCount}|}">Last</a>
+                </li>
+            </ul>
+        </nav>
+
+
+    </th:block>
+
+    <footer th:replace="layout :: footer"></footer>
+
+</div>
+
+</body>
+</html>
