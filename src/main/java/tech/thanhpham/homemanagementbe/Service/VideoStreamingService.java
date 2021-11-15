@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 
 @Service
@@ -50,17 +49,20 @@ public class VideoStreamingService {
                 .body(resource);
 
     }
-
-    public void VideoUploader(String videoDTO) throws MessagingException, UnsupportedEncodingException {
+    @Async
+    public void VideoUploader(String videoDTO, String flag) throws MessagingException, UnsupportedEncodingException {
+        boolean flagBool = Boolean.parseBoolean(flag);
         if (settingsService.getVideoRecorder()) {
             LocalDate date = LocalDate.now();
             File f = new File(videoPath + File.separator + date + File.separator + videoDTO);
-            if (f.exists() && !f.isDirectory()) {
-                Video video = new Video(videoDTO, LocalDateTime.now(), true);
-                videoRepository.save(video);
-                if (settingsService.getMailNotification()) {
-                    mailWarningService.sendAllMail("http://localhost:8000/video/" + date + "/" + videoDTO);
-                }
+            if ((settingsService.getWhiteList() == Boolean.FALSE) | (settingsService.getWhiteList() == Boolean.TRUE & flagBool == Boolean.FALSE)) {
+//                if (f.exists() && !f.isDirectory()) {
+                    Video video = new Video(videoDTO, LocalDateTime.now(), true);
+                    videoRepository.save(video);
+                    if (settingsService.getMailNotification()) {
+                        mailWarningService.sendAllMail("http://localhost:8000/video/" + date + "/" + videoDTO);
+                    }
+//                }
             }
         }
 

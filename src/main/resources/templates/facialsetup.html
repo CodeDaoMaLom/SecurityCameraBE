@@ -63,20 +63,159 @@
         .test:hover ~ .test2 {
             display: none;
         }
+
+        /* CSS comes here */
+        #video {
+            border: 1px solid black;
+            width: 320px;
+            height: 240px;
+        }
+
+        #photo {
+            border: 1px solid black;
+            width: 320px;
+            height: 240px;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .camera {
+            width: 340px;
+            display: inline-block;
+        }
+
+        .output {
+            width: 340px;
+            display: inline-block;
+        }
+
+        .contentarea {
+            text-align: center;
+        }
     </style>
 
+    <script>
+        /* JS comes here */
+        (function () {
 
+            var width = 640; // We will scale the photo width to this
+            var height = 0; // This will be computed based on the input stream
+
+            var streaming = false;
+
+            var video = null;
+            var canvas = null;
+            var photo = null;
+            var startbutton = null;
+            var image64 = null;
+
+            function startup() {
+                video = document.getElementById('video');
+                canvas = document.getElementById('canvas');
+                photo = document.getElementById('photo');
+                image64 = document.getElementById('data');
+                startbutton = document.getElementById('startbutton');
+
+                navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch(function (err) {
+                        console.log("An error occurred: " + err);
+                    });
+
+                video.addEventListener('canplay', function (ev) {
+                    if (!streaming) {
+                        height = video.videoHeight / (video.videoWidth / width);
+
+                        if (isNaN(height)) {
+                            height = width / (4 / 3);
+                        }
+
+                        // video.setAttribute('width', width);
+                        // video.setAttribute('height', height);
+                        // canvas.setAttribute('width', width);
+                        // canvas.setAttribute('height', height);
+                        streaming = true;
+                    }
+                }, false);
+
+                startbutton.addEventListener('click', function (ev) {
+                    takepicture();
+                    toSetup();
+                    ev.preventDefault();
+                }, false);
+
+                clearphoto();
+            }
+
+
+            function clearphoto() {
+                var context = canvas.getContext('2d');
+                context.fillStyle = "#AAA";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                var data = canvas.toDataURL('image/jpeg', 1.0);
+                photo.setAttribute('src', data);
+            }
+
+            function takepicture() {
+                var context = canvas.getContext('2d');
+                if (width && height) {
+                    canvas.width = width;
+                    canvas.height = height;
+                    context.drawImage(video, 0, 0, width, height);
+
+                    var data = canvas.toDataURL('image/jpeg', 1.0);
+                    image64.setAttribute('value', data)
+                    photo.setAttribute('src', data);
+                } else {
+                    clearphoto();
+                }
+            }
+
+            window.addEventListener('load', startup, false);
+        })();
+
+        function toCapture() {
+            var x = document.getElementById("data-box");
+            var y = document.getElementById("camera-box");
+            var z = document.getElementById("btn-save");
+            var t = document.getElementById("btn-take");
+            y.style.display = "block";
+            x.style.display = "none";
+            z.style.display = "none";
+            t.style.display = "block";
+        }
+
+        function toSetup() {
+            var x = document.getElementById("data-box");
+            var y = document.getElementById("camera-box");
+            var z = document.getElementById("btn-save");
+            var t = document.getElementById("btn-take");
+            x.style.display = "block";
+            y.style.display = "none";
+            z.style.display = "block";
+            t.style.display = "none";
+        }
+    </script>
 </head>
 <body>
 <nav th:replace="layout :: header"></nav>
 
-
-
 <div class="container main-content list">
     <br/>
     <div class="row">
+        <button class="btn btn-primary" data-target="#add-person" data-toggle="modal" type="submit">Setup Person
+        </button>
         <form action="#" class="form-inline pull-right"
-              method="GET" >
+              method="GET">
             <div class="form-group">
                 <input class="form-control" name="s" placeholder="Type person name..."
                        type="text"/>
@@ -85,7 +224,7 @@
         </form>
     </div>
     <th:block th:if="${#lists.isEmpty(faces.pageList)}">
-        <h3>No Video</h3>
+        <h3>No have facial setup</h3>
     </th:block>
 
     <th:block th:unless="${#lists.isEmpty(faces.pageList)}">
@@ -105,8 +244,26 @@
                     <tr th:each="face, iterStat : ${faces.pageList}">
                         <td th:text="${iterStat.count + (currentIndex - 1) * 10}"></td>
                         <td th:text="${face.name}"></td>
-                        <td><a href="#"><span
-                                class="glyphicon glyphicon-play-circle"></span></a></td>
+                        <td><a href="#" type="button" data-toggle="modal" th:attr="data-target='#view-'+ ${iterStat.count }"><span
+                                class="glyphicon glyphicon-play-circle"></span></a>
+                            <div class="modal fade" th:id="${'view-' + iterStat.count}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title" id="staticBackdropLabel" th:text="${face.name}"></h3>
+                                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div th:each="image : ${face.images}">
+                                                <img th:src="'/api/image-verify/get-image-setup' + ${image}" style="width: 320px; height: auto">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
                         <td><a th:href="${'/facial-setup/delete?ids='+ face.data }"><span
                                 class="glyphicon glyphicon-trash"></span></a></td>
                     </tr>
@@ -116,7 +273,7 @@
             <ul class="pagination center">
                 <li
                         th:class="${currentIndex == 1}? 'page-item disabled' : 'page-item'">
-                    <a class="page-link" th:href="@{/videos/page/1}">First</a>
+                    <a class="page-link" th:href="@{/facial-setup/page/1}">First</a>
                 </li>
                 <li
                         th:class="${currentIndex == 1}? 'page-item disabled': 'page-item' ">
@@ -147,6 +304,58 @@
 
     </th:block>
 
+    <div class="row">
+        <div class="modal fade" id="add-person" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Facial Setup</h3>
+                        <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="#" th:action="@{/facial-setup/setup}" th:object="${request}" method="post">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="contentarea" id="camera-box">
+                                    <div class="camera">
+                                        <video id="video">Video stream not available.</video>
+                                    </div>
+                                    <canvas id="canvas"></canvas>
+
+                                </div>
+                                <div id="data-box" style="display: none">
+                                    <div class="contentarea"><img alt="The screen capture will appear in this box."
+                                                                  id="photo"></div>
+                                    <br>
+                                    <label class="col-form-label"
+                                           for="name">Enter Person Name:</label>
+                                    <input class="form-control" id="name" name="name" type="text" th:field="*{name}">
+                                    <input style="display: none" id="data" name="data" type="text" th:field="*{data}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div id="btn-save" style="display: none">
+                                <button class="btn btn-primary" type="submit">Save</button>
+                                <button class="btn btn-primary" type="button" onclick="toCapture()">Clear</button>
+                                <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                                    Close
+                                </button>
+                            </div>
+                            <div id="btn-take">
+                                <button class="btn btn-primary" id="startbutton" type="button">Take photo</button>
+                                <button class="btn btn-secondary" data-dismiss="modal" type="button">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
     <footer th:replace="layout :: footer"></footer>
 
 </div>

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,7 +44,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().cors();
 
-        http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll();
         http.authorizeRequests().antMatchers("/").hasAnyAuthority(roleMember);
         http.authorizeRequests().antMatchers("/videos/**").hasAnyAuthority(roleMember);
         http.authorizeRequests().antMatchers("/settings/**").hasAnyAuthority(roleMember);

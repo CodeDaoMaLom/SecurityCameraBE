@@ -10,6 +10,8 @@ public class FacialSetupDTO {
     @JsonProperty
     private List<Integer> data = null;
 
+    private List<String> images = null;
+
     public String getName() {
         return name;
     }
@@ -24,5 +26,13 @@ public class FacialSetupDTO {
 
     public void setData(List<Integer> data) {
         this.data = data;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 }

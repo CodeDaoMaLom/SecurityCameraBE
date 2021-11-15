@@ -21,7 +21,7 @@
       integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" rel="stylesheet"/>
 
 <div class="container">
-    <nav class="row justify-content-center wow fadeIn"
+    <div class="row justify-content-center wow fadeIn"
          data-wow-delay="0.2s">
         <div class="col-12 col-lg-10 col-xl-8 mx-auto">
             <br/>
@@ -53,8 +53,10 @@
                 <div class="row align-items-center">
                     <div class="col">
                         <strong class="mb-2">Video Recorder</strong>
-                        <span class="badge progress-bar-success" th:if="${settings.get('video_recorder')}">Enabled</span>
-                        <a href="/settings/video_recorder" style="color: white" th:if="${settings.get('video_recorder')}">
+                        <span class="badge progress-bar-success"
+                              th:if="${settings.get('video_recorder')}">Enabled</span>
+                        <a href="/settings/video_recorder" style="color: white"
+                           th:if="${settings.get('video_recorder')}">
                             <button class="btn btn-primary btn-sm pull-right">
                                 Disable
                             </button>
@@ -81,7 +83,7 @@
                                 Disable
                             </button>
                         </a>
-                        <button class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#add-mail"
+                        <button class="btn btn-primary btn-sm pull-right" data-target="#add-mail" data-toggle="modal"
                                 style="margin-right: 20px" th:if="${settings.get('email_warning')}">
                             Add Email
                         </button>
@@ -96,7 +98,7 @@
                     </div>
                 </div>
                 <div class="row" th:if="${settings.get('email_warning')}">
-                    <div class="modal fade" role="dialog" tabindex="-1" id="add-mail">
+                    <div class="modal fade" id="add-mail" role="dialog" tabindex="-1">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -105,7 +107,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form method="get" action="/settings/add">
+                                <form action="/settings/add" method="get">
                                     <div class="modal-body">
                                         <div class="form-group">
                                             <label class="col-form-label"
@@ -183,7 +185,40 @@
                     </tbody>
                 </table>
             </div>
+            <div class="list-group-item justify-content-center"
+                 style="padding-left: 50px; padding-right: 50px; padding-bottom: 20px">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <strong class="mb-2">WhiteList Settings</strong>
+                        <span class="badge progress-bar-success"
+                              th:if="${settings.get('white_list')}">Enabled</span>
+
+
+                        <a href="/settings/white_list" style="color: white"
+                           th:if="${settings.get('white_list')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Disable
+                            </button>
+                        </a>
+                        <a href="/facial-setup" style="color: white"
+                           th:if="${settings.get('white_list')}">
+                            <button style="margin-right: 20px" class="btn btn-primary btn-sm pull-right">
+                                Manager
+                            </button>
+                        </a>
+                        <span class="badge progress-bar-danger"
+                              th:unless="${settings.get('white_list')}">Disable</span>
+                        <a href="/settings/white_list" style="color: white"
+                           th:unless="${settings.get('white_list')}">
+                            <button class="btn btn-primary btn-sm pull-right">
+                                Enable
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
 </div>
 
 </nav>

@@ -71,7 +71,7 @@ public class imageVerifyService {
             if (imageVerifyResponse.getProbabilityInt() > 70) {
                 this.saveImageToFolder(imageVerifyResponse, imageVerifyRequest.getData());
             } else {
-                videoStreamingService.VideoUploader(imageVerifyRequest.getName());
+                videoStreamingService.VideoUploader(imageVerifyRequest.getName(),"false");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,6 +180,16 @@ public class imageVerifyService {
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image);
     }
 
+    public ResponseEntity<byte[]> getImageSetup(String pathVariable, String filename) {
+        byte[] image = new byte[0];
+        System.out.println(imagePath + "/setups/" + pathVariable + "/" + filename);
+        try {
+            image = FileUtils.readFileToByteArray(new File(imagePath + "/setups/" + pathVariable + "/" + filename));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(image);
+    }
     public imageVerifyRequest base64String(formDataVerifyDTO formDataVerifyDTO) throws IOException {
         BASE64Encoder base64Encoder = new BASE64Encoder();
         File imagePath = multipartToFile(formDataVerifyDTO.getImage(), formDataVerifyDTO.getName());
@@ -213,6 +223,11 @@ public class imageVerifyService {
             facialSetupDTOList = response.getBody();
         } catch (Exception e){
             System.out.println("Error: " + e);
+        }
+        for(FacialSetupDTO person : facialSetupDTOList){
+            List<String> imagesList = new ArrayList<>();
+            imageSetupRepository.findAllByName(person.getName()).forEach(imageVerify -> imagesList.add(imageVerify.getPath()));
+            person.setImages(imagesList);
         }
         return facialSetupDTOList;
     }

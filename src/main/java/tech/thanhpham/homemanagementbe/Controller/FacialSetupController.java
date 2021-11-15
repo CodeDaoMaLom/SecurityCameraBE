@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tech.thanhpham.homemanagementbe.DTO.FacialSetupDTO;
+import tech.thanhpham.homemanagementbe.DTO.imageVerifyRequest;
 import tech.thanhpham.homemanagementbe.Entity.Video;
 import tech.thanhpham.homemanagementbe.Service.imageVerifyService;
 
@@ -32,10 +31,11 @@ public class FacialSetupController {
 
     @GetMapping("/facial-setup/page/{pageNumber}")
     public String showEmployeePage(HttpServletRequest request, @PathVariable int pageNumber, Model model) {
+        model.addAttribute("request", new imageVerifyRequest());
         PagedListHolder<?> pages = (PagedListHolder<?>) request.getSession().getAttribute("facialSetupList");
         int pagesize = 10;
         List<FacialSetupDTO> list =  imageVerifyService.getFacialSetupDTOList();
-        System.out.println(list.size());
+//        list.forEach(facialSetupDTO -> System.out.println(facialSetupDTO.getImages()));
         if (pages == null) {
             pages = new PagedListHolder<>(list);
             pages.setPageSize(pagesize);
@@ -67,6 +67,14 @@ public class FacialSetupController {
     public String delete(@RequestParam String ids, RedirectAttributes redirect) {
         imageVerifyService.deleteFacialSetup("[" + ids + "]");
         redirect.addFlashAttribute("success", "Deleted video successfully!");
+        return "redirect:/facial-setup";
+    }
+
+    @PostMapping("/facial-setup/setup")
+    public String setup(@ModelAttribute imageVerifyRequest request, Model model) {
+        model.addAttribute("request", request);
+        request.setData(request.getData().replace("data:image/png;base64,", ""));
+        imageVerifyService.imageVerify(request);
         return "redirect:/facial-setup";
     }
 

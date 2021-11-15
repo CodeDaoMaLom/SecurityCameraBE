@@ -23,8 +23,8 @@ public class VideoStreamingController {
     }
 
     @GetMapping("/api/video")
-    public String VideoUploader(@RequestParam String name) throws MessagingException, UnsupportedEncodingException {
-        videoStreamService.VideoUploader(name);
+    public String VideoUploader(@RequestParam String name, @RequestParam String flag) throws MessagingException, UnsupportedEncodingException {
+        videoStreamService.VideoUploader(name, flag);
         return "OK";
     }
 

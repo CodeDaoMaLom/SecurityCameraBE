@@ -3,6 +3,7 @@ package tech.thanhpham.homemanagementbe.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tech.thanhpham.homemanagementbe.Entity.Settings;
 import tech.thanhpham.homemanagementbe.Repository.SettingsRepository;
 
@@ -28,12 +29,38 @@ public class SettingsService {
         return settingsMap;
     }
 
+    @Transactional
     public void setConfig(String key) {
+        Settings aiMode = settingsRepository.findById("ai_mode").get();
+        if(!key.equals("ai_mode") & aiMode.getBooleanValue()) {
+            Settings settings = settingsRepository.findById(key).get();
+            settings.setValue(String.valueOf(!settings.getBooleanValue()));
+            if (key.equals("video_recorder") & !settings.getBooleanValue()) {
+                this.setStaticConfig("email_warning", Boolean.FALSE);
+                this.setStaticConfig("white_list", Boolean.FALSE);
+            }
+            if (key.equals("email_warning") & !settings.getBooleanValue()) {
+                this.setStaticConfig("white_list", Boolean.FALSE);
+            }
+
+            settingsRepository.save(settings);
+        }
+        if (key.equals("ai_mode")){
+            aiMode.setValue(String.valueOf(!aiMode.getBooleanValue()));
+            if (!aiMode.getBooleanValue()) {
+                this.setStaticConfig("video_recorder", Boolean.FALSE);
+                this.setStaticConfig("email_warning", Boolean.FALSE);
+                this.setStaticConfig("white_list", Boolean.FALSE);
+            }
+            settingsRepository.save(aiMode);
+
+        }
+    }
+    public void setStaticConfig(String key, Boolean value) {
         Settings settings = settingsRepository.findById(key).get();
-        settings.setValue(String.valueOf(!settings.getBooleanValue()));
+        settings.setValue(String.valueOf(value));
         settingsRepository.save(settings);
     }
-
     public String getVideoMode() {
         Settings config = settingsRepository.findById("ai_mode").get();
         if (config.getBooleanValue()) {
@@ -48,6 +75,10 @@ public class SettingsService {
     }
     public Boolean getMailNotification() {
         Settings config = settingsRepository.findById("email_warning").get();
+        return config.getBooleanValue();
+    }
+    public Boolean getWhiteList() {
+        Settings config = settingsRepository.findById("white_list").get();
         return config.getBooleanValue();
     }
 }

@@ -48,7 +48,10 @@ public class imageVerifyController {
     public ResponseEntity<byte[]> getImage(@PathVariable("imagePath") String imagePath) {
         return imageVerifyService.getImage(imagePath);
     }
-
+    @GetMapping("/get-image-setup/{path}/{imagePath}/{filename}")
+    public ResponseEntity<byte[]> getImageSetup(@PathVariable("path") String path, @PathVariable("imagePath") String imagePath, @PathVariable("filename") String filename) {
+        return imageVerifyService.getImageSetup(imagePath, filename);
+    }
     @PostMapping(value = "/verify-file", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public imageVerifyDTO setupWithFiles(@ModelAttribute formDataVerifyDTO formDataVerifyDTO) throws IOException {
         return  imageVerifyService.verifyFromMultiPath(formDataVerifyDTO);
